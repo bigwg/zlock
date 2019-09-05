@@ -6,7 +6,9 @@ package com.zzw.distribution.lock.core.source;
  * @author zhaozhiwei
  * @date 2019/5/29 15:08
  */
+@Deprecated
 public class EtcdSource implements Source {
+
     @Override
     public void acquire(String lockName, int arg) {
 

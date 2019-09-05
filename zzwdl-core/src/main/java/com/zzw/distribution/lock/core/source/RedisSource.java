@@ -7,6 +7,9 @@ package com.zzw.distribution.lock.core.source;
  * @date 2019/5/29 15:08
  */
 public class RedisSource implements Source {
+
+
+
     @Override
     public void acquire(String lockName, int arg) {
 

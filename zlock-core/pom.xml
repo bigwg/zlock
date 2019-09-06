@@ -6,11 +6,11 @@
 
     <parent>
         <groupId>com.zzw</groupId>
-        <artifactId>zzw-dl</artifactId>
+        <artifactId>zlock</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zzwdl-spring-boot-starter</artifactId>
+    <artifactId>zlock-core</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 

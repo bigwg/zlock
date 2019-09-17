@@ -2,6 +2,8 @@ package com.zzw.distribution.lock.core.tick;
 
 import com.zzw.distribution.lock.core.DistributedLock;
 import com.zzw.distribution.lock.core.LockExecutors;
+import com.zzw.distribution.lock.core.source.RedisSource;
+import com.zzw.distribution.lock.core.source.Source;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -24,18 +26,18 @@ public class Tick implements Runnable {
     private ScheduledExecutorService executor;
     private int executeTimes = 0;
     private LocalDateTime rightRunTime;
-    private DistributedLock distributedLock;
+    private Source source;
     private volatile boolean interrupted = false;
 
-    public Tick(String tickName, String lockName, Long delay, TimeUnit timeUnit, ScheduledExecutorService executor,
-                LocalDateTime rightRunTime/*, DistributedLock distributedLock*/) {
+    public Tick(String tickName, String lockName, long delay, TimeUnit timeUnit, ScheduledExecutorService executor,
+                LocalDateTime rightRunTime, Source source) {
         this.tickName = tickName;
         this.lockName = lockName;
         this.delay = delay;
         this.timeUnit = timeUnit;
         this.executor = executor;
         this.rightRunTime = rightRunTime;
-//        this.distributedLock = distributedLock;
+        this.source = source;
     }
 
     public void interrupt() {
@@ -43,11 +45,11 @@ public class Tick implements Runnable {
     }
 
     public void release() {
-        distributedLock.unlock(lockName);
+        source.release(lockName, 1);
     }
 
     private void extend() {
-        distributedLock.extend(lockName);
+        source.extend(lockName);
     }
 
     @Override
@@ -73,7 +75,8 @@ public class Tick implements Runnable {
             Thread.sleep(nextTime);
             String tickName = "tick-thread-" + i;
             LocalDateTime now = LocalDateTime.now();
-            Tick lockTick = new Tick(tickName, tickName, 2L, TimeUnit.SECONDS, LockExecutors.scheduledExecutorService, now.plusSeconds(2L));
+            Source source = new RedisSource("127.0.0.1", 6379);
+            Tick lockTick = new Tick(tickName, tickName, 2L, TimeUnit.SECONDS, LockExecutors.scheduledExecutorService, now.plusSeconds(2L), source);
             LockExecutors.scheduledExecutorService.schedule(lockTick, 2L, TimeUnit.SECONDS);
             LockExecutors.ticks.put(tickName, lockTick);
         }

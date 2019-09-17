@@ -14,6 +14,10 @@ public class DefaultDistributionLock implements DistributedLock {
 
     private Source source;
 
+    public DefaultDistributionLock(Source source){
+        this.source = source;
+    }
+
     @Override
     public void lock(String lockName) {
         source.acquire(lockName, 1);

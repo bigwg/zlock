@@ -14,10 +14,31 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class LockExecutors {
 
-    public static Map<String, Tick> ticks = new ConcurrentHashMap<>(20);
+    public static final int CORE_POOL_SIZE = Runtime.getRuntime().availableProcessors() + 1;
 
-    public static ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(10,
-            new LockThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
+    private static Map<String, Tick> ticks = new ConcurrentHashMap<>(20);
+
+    private static ScheduledExecutorService scheduledExecutorService;
+
+    public static Map<String, Tick> getTicks() {
+        return ticks;
+    }
+
+    public static ScheduledExecutorService getScheduledExecutorService() {
+        if (scheduledExecutorService != null) {
+            return scheduledExecutorService;
+        } else {
+            synchronized (LockExecutors.class) {
+                if (scheduledExecutorService != null) {
+                    return scheduledExecutorService;
+                } else {
+                    scheduledExecutorService = new ScheduledThreadPoolExecutor(CORE_POOL_SIZE,
+                            new LockThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
+                    return scheduledExecutorService;
+                }
+            }
+        }
+    }
 
     static class LockThreadFactory implements ThreadFactory {
         private static final AtomicInteger poolNumber = new AtomicInteger(1);

@@ -76,14 +76,14 @@ public class Tick implements Runnable {
             String tickName = "tick-thread-" + i;
             LocalDateTime now = LocalDateTime.now();
             Source source = new RedisSource("127.0.0.1", 6379);
-            Tick lockTick = new Tick(tickName, tickName, 2L, TimeUnit.SECONDS, LockExecutors.scheduledExecutorService, now.plusSeconds(2L), source);
-            LockExecutors.scheduledExecutorService.schedule(lockTick, 2L, TimeUnit.SECONDS);
-            LockExecutors.ticks.put(tickName, lockTick);
+            Tick lockTick = new Tick(tickName, tickName, 2L, TimeUnit.SECONDS, LockExecutors.getScheduledExecutorService(), now.plusSeconds(2L), source);
+            LockExecutors.getScheduledExecutorService().schedule(lockTick, 2L, TimeUnit.SECONDS);
+            LockExecutors.getTicks().put(tickName, lockTick);
         }
         for (int i = 0; i < 10; i++) {
             Thread.sleep(10000);
             String tickName = "tick-thread-" + new Random().nextInt(50);
-            Tick currentTick = LockExecutors.ticks.get(tickName);
+            Tick currentTick = LockExecutors.getTicks().get(tickName);
             currentTick.interrupt();
         }
     }

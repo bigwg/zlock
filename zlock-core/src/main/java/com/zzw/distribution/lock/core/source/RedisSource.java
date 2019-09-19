@@ -2,8 +2,10 @@ package com.zzw.distribution.lock.core.source;
 
 import com.zzw.distribution.lock.core.LockExecutors;
 import com.zzw.distribution.lock.core.tick.Tick;
-import redis.clients.jedis.Jedis;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import redis.clients.jedis.JedisCommands;
 import redis.clients.jedis.JedisPool;
+import redis.clients.util.Pool;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -19,15 +21,30 @@ import java.util.concurrent.TimeUnit;
  */
 public class RedisSource implements Source {
 
-    private JedisPool jedisPool;
+    private Pool jedisPool;
     private String localIp;
     private int initTime;
     private int extendTime;
 
     public RedisSource(String host, int port) {
-        this.jedisPool = new JedisPool(host, port);
+        this(host, port, null);
+    }
+
+    public RedisSource(String host, int port, String password) {
+        this.jedisPool = new JedisPool(new GenericObjectPoolConfig(), host, port, 3000, password);
         this.initTime = 10;
-        this.extendTime = 3;
+        this.extendTime = 5;
+        try {
+            this.localIp = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            this.localIp = "0.0.0.0";
+        }
+    }
+
+    public RedisSource(Pool pool) {
+        this.jedisPool = pool;
+        this.initTime = 10;
+        this.extendTime = 5;
         try {
             this.localIp = InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException e) {
@@ -68,20 +85,21 @@ public class RedisSource implements Source {
 
     @Override
     public boolean release(String lockName, int arg) {
-        Jedis jedis = getResource();
+        JedisCommands jedis = getResource();
         try {
             String value = jedis.get(lockName);
             if (value != null) {
                 if (Objects.equals(value, localIp)) {
                     jedis.del(lockName);
-                    Tick tick = LockExecutors.ticks.get(lockName);
-                    if (tick != null){
-
+                    Tick tick = LockExecutors.getTicks().get(lockName);
+                    if (tick != null) {
+                        tick.interrupt();
                     }
+                    LockExecutors.getTicks().remove(lockName);
                 }
             }
         } finally {
-            jedisPool.close();
+            jedisPool.returnResource(jedis);
         }
         return true;
     }
@@ -93,19 +111,19 @@ public class RedisSource implements Source {
 
     @Override
     public boolean tryAcquire(String lockName, int arg) {
-        Jedis jedis = getResource();
+        JedisCommands jedis = getResource();
         boolean result;
         try {
             result = setnx(jedis, lockName);
         } finally {
-            jedisPool.close();
+            jedisPool.returnResource(jedis);
         }
         if (result) {
             LocalDateTime now = LocalDateTime.now();
-            Tick lockTick = new Tick(lockName, lockName, extendTime, TimeUnit.SECONDS, LockExecutors.scheduledExecutorService,
+            Tick lockTick = new Tick(lockName, lockName, extendTime - 2, TimeUnit.SECONDS, LockExecutors.getScheduledExecutorService(),
                     now.plusSeconds(2L), this);
-            LockExecutors.scheduledExecutorService.schedule(lockTick, extendTime, TimeUnit.SECONDS);
-            LockExecutors.ticks.put(lockName, lockTick);
+            LockExecutors.getScheduledExecutorService().schedule(lockTick, extendTime, TimeUnit.SECONDS);
+            LockExecutors.getTicks().put(lockName, lockTick);
         }
         return result;
     }
@@ -122,7 +140,7 @@ public class RedisSource implements Source {
 
     @Override
     public void extend(String lockName) {
-        Jedis jedis = getResource();
+        JedisCommands jedis = getResource();
         try {
             String value = jedis.get(lockName);
             if (value != null) {
@@ -131,17 +149,19 @@ public class RedisSource implements Source {
                 }
             }
         } finally {
-            jedisPool.close();
+            jedisPool.returnResource(jedis);
         }
     }
 
-    private Jedis getResource() {
-        return jedisPool.getResource();
+    private JedisCommands getResource() {
+        return (JedisCommands) jedisPool.getResource();
     }
 
-    private boolean setnx(Jedis jedis, String lockName) {
+    private boolean setnx(JedisCommands jedis, String lockName) {
         long result = jedis.setnx(lockName, localIp);
         jedis.expire(lockName, initTime);
         return result != 0;
     }
+
 }
+

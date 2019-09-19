@@ -10,9 +10,11 @@
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>zlock-spring-boot-starter</artifactId>
+    <artifactId>zlock</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
+    <name>zlock-all</name>
+    <description>The all in one project of zlock</description>
 
     
 </project>

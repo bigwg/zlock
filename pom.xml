@@ -6,7 +6,7 @@
 
     <groupId>com.zzw</groupId>
     <artifactId>zlock-parent</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
     <description>ZLock分布式锁项目</description>
 
@@ -22,6 +22,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.complier.plugin.version>3.5</maven.complier.plugin.version>
         <jedis.version>2.9.0</jedis.version>
+        <revision>0.1.0-SNAPSHOT</revision>
     </properties>
 
     <dependencyManagement>

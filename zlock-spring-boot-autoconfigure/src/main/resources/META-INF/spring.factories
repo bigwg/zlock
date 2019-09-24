@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.zzw.zlock.spring.boot.autoconfigure.ZlockAutoConfiguration

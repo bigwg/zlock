@@ -1,0 +1,28 @@
+{
+  "groups": [
+    {
+      "name": "flyway",
+      "type": "org.springframework.boot.autoconfigure.flyway.FlywayProperties",
+      "sourceType": "org.springframework.boot.autoconfigure.flyway.FlywayProperties"
+    }
+
+  ],
+  "properties": [
+    {
+      "name": "spring.webservices.servlet.load-on-startup",
+      "type": "java.lang.Integer",
+      "description": "Load on startup priority of the Spring Web Services servlet.",
+      "sourceType": "org.springframework.boot.autoconfigure.webservices.WebServicesProperties$Servlet",
+      "defaultValue": -1
+    }
+  ],
+  "hints": [
+    {
+      "name": "liquibase.change-log",
+      "providers": [{
+        "name": "handle-as",
+        "parameters": {"target": "org.springframework.core.io.Resource"}
+      }]
+    }
+  ]
+}

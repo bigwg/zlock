@@ -11,9 +11,10 @@
     <description>ZLock分布式锁项目</description>
 
     <modules>
+        <module>zlock-all</module>
         <module>zlock-core</module>
         <module>zlock-spring-boot-starter</module>
-        <module>zlock-all</module>
+        <module>zlock-spring-boot-autoconfigure</module>
     </modules>
 
     <properties>
@@ -24,6 +25,7 @@
         <jedis.version>2.9.0</jedis.version>
         <revision>0.1.0-SNAPSHOT</revision>
         <junit_jupiter_version>5.4.0</junit_jupiter_version>
+        <spring-boot.version>1.5.9.RELEASE</spring-boot.version>
     </properties>
 
     <dependencies>
@@ -47,6 +49,14 @@
                 <groupId>redis.clients</groupId>
                 <artifactId>jedis</artifactId>
                 <version>${jedis.version}</version>
+            </dependency>
+            <!-- Spring Boot -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

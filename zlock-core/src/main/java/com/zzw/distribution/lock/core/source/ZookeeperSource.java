@@ -6,7 +6,6 @@ package com.zzw.distribution.lock.core.source;
  * @author zhaozhiwei
  * @date 2019/5/29 15:08
  */
-@Deprecated
 public class ZookeeperSource implements Source {
 
     @Override

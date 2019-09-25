@@ -9,4 +9,6 @@ package com.zzw.zlock.spring.boot.util;
 public abstract class ZlockUtils {
 
     public static final String ZLOCK_PREFIX = "zlock";
+
+    public static final String ZLOCK_REDIS_PREFIX = "zlock.redis";
 }

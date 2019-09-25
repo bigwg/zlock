@@ -8,7 +8,7 @@ package com.zzw.zlock.spring.boot.autoconfigure;
  */
 public class RedisConfig {
     private String host;
-    private String port;
+    private Integer port;
     private String password;
 
     public String getHost() {
@@ -19,11 +19,11 @@ public class RedisConfig {
         this.host = host;
     }
 
-    public String getPort() {
+    public Integer getPort() {
         return port;
     }
 
-    public void setPort(String port) {
+    public void setPort(Integer port) {
         this.port = port;
     }
 

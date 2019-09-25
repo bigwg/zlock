@@ -23,10 +23,10 @@
     },
     {
       "name": "zlock.redis.port",
-      "type": "java.lang.String",
+      "type": "java.lang.Integer",
       "description": "Zlock redis port.",
       "sourceType": "com.zzw.zlock.spring.boot.autoconfigure.ZlockConfigurationProperties",
-      "defaultValue": "6379"
+      "defaultValue": 6379
     },
     {
       "name": "zlock.redis.password",

@@ -15,6 +15,7 @@
         <module>zlock-core</module>
         <module>zlock-spring-boot-starter</module>
         <module>zlock-spring-boot-autoconfigure</module>
+        <module>zlock-demo</module>
     </modules>
 
     <properties>

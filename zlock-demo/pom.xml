@@ -11,17 +11,14 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>zlock</artifactId>
-    <packaging>jar</packaging>
-    <name>zlock-all</name>
-    <description>The all in one project of zlock</description>
+    <artifactId>zlock-demo</artifactId>
+    <packaging>pom</packaging>
+    <name>${project.artifactId}</name>
+    <description>${project.artifactId}</description>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.zzw</groupId>
-            <artifactId>zlock-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
+    <modules>
+        <module>zlock-demo-spring</module>
+        <module>zlock-demo-spring-boot</module>
+    </modules>
 
 </project>

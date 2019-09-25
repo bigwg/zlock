@@ -12,8 +12,16 @@
     </parent>
 
     <artifactId>zlock-spring-boot-starter</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     <name>${project.artifactId}</name>
+    <description>${project.artifactId}</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.zzw</groupId>
+            <artifactId>zlock-spring-boot-autoconfigure</artifactId>
+            <version>${revision}</version>
+        </dependency>
+    </dependencies>
     
 </project>

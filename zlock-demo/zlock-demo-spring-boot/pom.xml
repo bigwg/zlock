@@ -16,5 +16,16 @@
     <name>${project.artifactId}</name>
     <description>${project.artifactId}</description>
 
-    
+    <dependencies>
+        <dependency>
+            <groupId>com.zzw</groupId>
+            <artifactId>zlock-spring-boot-starter</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>

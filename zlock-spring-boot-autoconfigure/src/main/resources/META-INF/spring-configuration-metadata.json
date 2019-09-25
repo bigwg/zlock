@@ -1,28 +1,41 @@
 {
   "groups": [
     {
-      "name": "flyway",
-      "type": "org.springframework.boot.autoconfigure.flyway.FlywayProperties",
-      "sourceType": "org.springframework.boot.autoconfigure.flyway.FlywayProperties"
+      "name": "zlock",
+      "type": "com.zzw.zlock.spring.boot.autoconfigure.ZlockConfigurationProperties",
+      "sourceType": "com.zzw.zlock.spring.boot.autoconfigure.ZlockConfigurationProperties"
     }
-
   ],
   "properties": [
     {
-      "name": "spring.webservices.servlet.load-on-startup",
-      "type": "java.lang.Integer",
-      "description": "Load on startup priority of the Spring Web Services servlet.",
-      "sourceType": "org.springframework.boot.autoconfigure.webservices.WebServicesProperties$Servlet",
-      "defaultValue": -1
+      "name": "zlock.enable",
+      "type": "java.lang.Boolean",
+      "description": "Zlock switch.",
+      "sourceType": "com.zzw.zlock.spring.boot.autoconfigure.ZlockConfigurationProperties",
+      "defaultValue": true
+    },
+    {
+      "name": "zlock.redis.host",
+      "type": "java.lang.String",
+      "description": "Zlock redis host.",
+      "sourceType": "com.zzw.zlock.spring.boot.autoconfigure.ZlockConfigurationProperties",
+      "defaultValue": "127.0.0.1"
+    },
+    {
+      "name": "zlock.redis.port",
+      "type": "java.lang.String",
+      "description": "Zlock redis port.",
+      "sourceType": "com.zzw.zlock.spring.boot.autoconfigure.ZlockConfigurationProperties",
+      "defaultValue": "6379"
+    },
+    {
+      "name": "zlock.redis.password",
+      "type": "java.lang.String",
+      "description": "Zlock redis password.",
+      "sourceType": "com.zzw.zlock.spring.boot.autoconfigure.ZlockConfigurationProperties",
+      "defaultValue": ""
     }
   ],
   "hints": [
-    {
-      "name": "liquibase.change-log",
-      "providers": [{
-        "name": "handle-as",
-        "parameters": {"target": "org.springframework.core.io.Resource"}
-      }]
-    }
   ]
 }

@@ -55,6 +55,6 @@ public class EtcdSource implements Source {
 
     @Override
     public void extend(String lockName) {
-        
+
     }
 }

@@ -3,9 +3,11 @@ package com.zzw.distribution.lock.core.source;
 import com.zzw.distribution.lock.core.LockExecutors;
 import com.zzw.distribution.lock.core.tick.Tick;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import redis.clients.jedis.JedisCommands;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.util.Pool;
+import redis.clients.jedis.ShardedJedis;
+import redis.clients.jedis.commands.JedisCommands;
+import redis.clients.jedis.util.Pool;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -99,7 +101,12 @@ public class RedisSource implements Source {
                 }
             }
         } finally {
-            jedisPool.returnResource(jedis);
+            // return resource
+            if (jedis instanceof ShardedJedis) {
+                ((ShardedJedis) jedis).close();
+            } else if (jedis instanceof Jedis) {
+                ((Jedis) jedis).close();
+            }
         }
         return true;
     }
@@ -116,7 +123,12 @@ public class RedisSource implements Source {
         try {
             result = setnx(jedis, lockName);
         } finally {
-            jedisPool.returnResource(jedis);
+            // return resource
+            if (jedis instanceof ShardedJedis) {
+                ((ShardedJedis) jedis).close();
+            } else if (jedis instanceof Jedis) {
+                ((Jedis) jedis).close();
+            }
         }
         if (result) {
             LocalDateTime now = LocalDateTime.now();
@@ -149,7 +161,12 @@ public class RedisSource implements Source {
                 }
             }
         } finally {
-            jedisPool.returnResource(jedis);
+            // return resource
+            if (jedis instanceof ShardedJedis) {
+                ((ShardedJedis) jedis).close();
+            } else if (jedis instanceof Jedis) {
+                ((Jedis) jedis).close();
+            }
         }
     }
 

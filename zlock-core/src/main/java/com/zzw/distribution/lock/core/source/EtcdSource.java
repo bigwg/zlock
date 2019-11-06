@@ -1,5 +1,7 @@
 package com.zzw.distribution.lock.core.source;
 
+import com.zzw.distribution.lock.core.util.PoolHttpClient;
+
 /**
  * Etcd 服务提供的锁
  *
@@ -7,6 +9,27 @@ package com.zzw.distribution.lock.core.source;
  * @date 2019/5/29 15:08
  */
 public class EtcdSource implements Source {
+
+    /**
+     * 池化管理器
+     */
+    private String url;
+    private PoolHttpClient poolHttpClient;
+
+    public EtcdSource() {
+        this.url = "http://127.0.0.1:2379";
+        try {
+            this.poolHttpClient = PoolHttpClient.getPoolHttpClient();
+        } catch (Exception e) {
+            throw new RuntimeException("init EtcdSource error, error message: " + e.getMessage());
+        }
+
+    }
+
+    public EtcdSource(String url) {
+        this();
+        this.url = url;
+    }
 
     @Override
     public void acquire(String lockName, int arg) {

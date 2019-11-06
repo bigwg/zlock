@@ -29,13 +29,11 @@ public class LockExecutors {
             return scheduledExecutorService;
         } else {
             synchronized (LockExecutors.class) {
-                if (scheduledExecutorService != null) {
-                    return scheduledExecutorService;
-                } else {
+                if (scheduledExecutorService == null) {
                     scheduledExecutorService = new ScheduledThreadPoolExecutor(CORE_POOL_SIZE,
                             new LockThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
-                    return scheduledExecutorService;
                 }
+                return scheduledExecutorService;
             }
         }
     }

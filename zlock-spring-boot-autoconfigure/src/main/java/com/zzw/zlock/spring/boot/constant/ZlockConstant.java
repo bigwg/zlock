@@ -11,21 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.zzw.zlock.demo.spring.boot;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+package com.zzw.zlock.spring.boot.constant;
 
 /**
- * Bootstrap class
+ * zlock constant
  *
  * @author zhaozhiwei
- * @date 2019/9/25 1:30 下午
+ * @date 2019/9/25 1:20 上午
  */
-@SpringBootApplication
-public class ZlockAutoConfigurationBootstrap {
+public class ZlockConstant {
 
-    public static void main(String[] args) {
-        SpringApplication.run(ZlockAutoConfigurationBootstrap.class, args);
-    }
+    public static final String ZLOCK_PREFIX = "zlock";
+
+    public static final String ZLOCK_REDIS_PREFIX = "zlock.redis";
 }

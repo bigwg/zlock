@@ -45,9 +45,6 @@ public class PoolHttpClient {
         Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
                 .register("http", PlainConnectionSocketFactory.getSocketFactory()).register("https", sslConnectionSocketFactory).build();
         // 初始化连接管理器
-        /**
-         * 池化管理器
-         */
         PoolingHttpClientConnectionManager poolConnManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
         // 同时最多连接数
         poolConnManager.setMaxTotal(640);

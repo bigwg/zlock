@@ -26,6 +26,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -52,7 +53,7 @@ public class RedisSource implements Source {
         try {
             this.localIp = InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException e) {
-            this.localIp = "0.0.0.0";
+            this.localIp = UUID.randomUUID().toString();
         }
     }
 
@@ -63,7 +64,7 @@ public class RedisSource implements Source {
         try {
             this.localIp = InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException e) {
-            this.localIp = "0.0.0.0";
+            this.localIp = UUID.randomUUID().toString();
         }
     }
 
@@ -85,7 +86,15 @@ public class RedisSource implements Source {
 
     @Override
     public void acquireInterruptibly(String lockName, int arg) throws InterruptedException {
-
+        if (!tryAcquire(lockName, arg)) {
+            for (; ; ) {
+                if (tryAcquire(lockName, arg)) {
+                    return;
+                } else {
+                    Thread.sleep(50);
+                }
+            }
+        }
     }
 
     @Override
@@ -155,7 +164,7 @@ public class RedisSource implements Source {
 
     @Override
     public boolean tryAcquireNanos(String lockName, int arg, long nanosTimeout) {
-        return false;
+        return tryAcquire(lockName, arg) || doAcquireNanos(lockName, arg, nanosTimeout);
     }
 
     @Override
@@ -191,6 +200,27 @@ public class RedisSource implements Source {
         long result = jedis.setnx(lockName, localIp);
         jedis.expire(lockName, initTime);
         return result != 0;
+    }
+
+    private boolean doAcquireNanos(String lockName, int arg, long nanosTimeout) {
+        if (nanosTimeout <= 0L) {
+            return false;
+        }
+        final long deadline = System.nanoTime() + nanosTimeout;
+        for (; ; ) {
+            if (tryAcquire(lockName, arg)) {
+                return true;
+            } else {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                }
+            }
+            nanosTimeout = deadline - System.nanoTime();
+            if (nanosTimeout <= 0L) {
+                return false;
+            }
+        }
     }
 
 }

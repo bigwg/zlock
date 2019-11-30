@@ -19,10 +19,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 /**
- * RedisSource 测试类
+ * {@link RedisSource} 测试类
  *
  * @author zhaozhiwei
  * @date 2019/9/19 3:03 下午
+ * @see RedisSource
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class RedisSourceTest {
@@ -32,7 +33,7 @@ public class RedisSourceTest {
     private String lockName = "zhaozhiweiTryAcquireLock";
 
     @BeforeAll
-    public void beforeAll(){
+    public void beforeAll() {
         source = new RedisSource("10.12.0.8", 6379, "MBkMl4cssBcbet1W");
     }
 
@@ -45,7 +46,7 @@ public class RedisSourceTest {
     }
 
     @Test
-    public void tryReleaseTest(){
+    public void tryReleaseTest() {
         boolean release = source.release(lockName, 1);
         Assertions.assertTrue(release);
     }

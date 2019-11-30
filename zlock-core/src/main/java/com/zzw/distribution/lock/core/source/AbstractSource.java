@@ -74,6 +74,16 @@ public abstract class AbstractSource implements Source {
     }
 
     @Override
+    public void acquireShared(String lockName, int arg) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void acquireSharedInterruptibly(String lockName, int arg) throws InterruptedException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean tryAcquire(String lockName, int arg) {
         throw new UnsupportedOperationException();
     }
@@ -81,6 +91,16 @@ public abstract class AbstractSource implements Source {
     @Override
     public boolean tryAcquireNanos(String lockName, int arg, long nanosTimeout) {
         return tryAcquire(lockName, arg) || doAcquireNanos(lockName, arg, nanosTimeout);
+    }
+
+    @Override
+    public boolean releaseShared(String lockName, int arg) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean tryAcquireSharedNanos(String lockName, int arg, long nanosTimeout) {
+        return false;
     }
 
     protected void addTask(String lockName) {

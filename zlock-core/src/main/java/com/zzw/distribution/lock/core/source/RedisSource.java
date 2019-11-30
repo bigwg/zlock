@@ -49,16 +49,6 @@ public class RedisSource extends AbstractSource implements Source {
     }
 
     @Override
-    public void acquireShared(String lockName, int arg) {
-
-    }
-
-    @Override
-    public void acquireSharedInterruptibly(String lockName, int arg) throws InterruptedException {
-
-    }
-
-    @Override
     public boolean release(String lockName, int arg) {
         JedisCommands jedis = getResource();
         try {
@@ -85,11 +75,6 @@ public class RedisSource extends AbstractSource implements Source {
     }
 
     @Override
-    public boolean releaseShared(String lockName, int arg) {
-        return false;
-    }
-
-    @Override
     public boolean tryAcquire(String lockName, int arg) {
         JedisCommands jedis = getResource();
         boolean result;
@@ -107,11 +92,6 @@ public class RedisSource extends AbstractSource implements Source {
             addTask(lockName);
         }
         return result;
-    }
-
-    @Override
-    public boolean tryAcquireSharedNanos(String lockName, int arg, long nanosTimeout) {
-        return false;
     }
 
     @Override

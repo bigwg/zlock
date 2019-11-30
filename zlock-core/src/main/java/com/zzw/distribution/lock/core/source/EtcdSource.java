@@ -46,16 +46,6 @@ public class EtcdSource extends AbstractSource implements Source {
     }
 
     @Override
-    public void acquireShared(String lockName, int arg) {
-
-    }
-
-    @Override
-    public void acquireSharedInterruptibly(String lockName, int arg) throws InterruptedException {
-
-    }
-
-    @Override
     public boolean release(String lockName, int arg) {
         KV kvClient = client.getKVClient();
         String fullLockName = BASE_LOCK_DIR + lockName + "/" + localIp;
@@ -68,11 +58,6 @@ public class EtcdSource extends AbstractSource implements Source {
             throw new RuntimeException(e.getMessage());
         }
         return true;
-    }
-
-    @Override
-    public boolean releaseShared(String lockName, int arg) {
-        return false;
     }
 
     @Override
@@ -103,11 +88,6 @@ public class EtcdSource extends AbstractSource implements Source {
             addTask(lockName);
         }
         return result;
-    }
-
-    @Override
-    public boolean tryAcquireSharedNanos(String lockName, int arg, long nanosTimeout) {
-        return false;
     }
 
     @Override

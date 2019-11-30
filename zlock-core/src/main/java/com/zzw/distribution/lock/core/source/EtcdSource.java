@@ -14,20 +14,12 @@
 package com.zzw.distribution.lock.core.source;
 
 import com.google.common.base.Charsets;
-import com.zzw.distribution.lock.core.LockExecutors;
-import com.zzw.distribution.lock.core.tick.Tick;
 import io.etcd.jetcd.*;
 import io.etcd.jetcd.kv.PutResponse;
 import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.options.PutOption;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Etcd 服务提供的锁
@@ -35,67 +27,22 @@ import java.util.concurrent.TimeUnit;
  * @author zhaozhiwei
  * @date 2019/5/29 15:08
  */
-public class EtcdSource implements Source {
+public class EtcdSource extends AbstractSource implements Source {
 
     /**
      * 池化管理器
      */
     private Client client;
-    private String localIp;
-    private int initTime;
-    private int extendTime;
-    private static ConcurrentHashMap<String, Long> LEASE_IDS = new ConcurrentHashMap<>();
     private static final String BASE_LOCK_DIR = "/zlock/";
 
     public EtcdSource() {
+        super();
         this.client = Client.builder().endpoints("http://127.0.0.1:2379").build();
-        this.initTime = 10;
-        this.extendTime = 5;
-        try {
-            this.localIp = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            this.localIp = UUID.randomUUID().toString();
-        }
     }
 
     public EtcdSource(String... urls) {
+        super();
         this.client = Client.builder().endpoints(urls).build();
-        this.initTime = 10;
-        this.extendTime = 5;
-        try {
-            this.localIp = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            this.localIp = UUID.randomUUID().toString();
-        }
-    }
-
-    @Override
-    public void acquire(String lockName, int arg) {
-        if (!tryAcquire(lockName, arg)) {
-            for (; ; ) {
-                if (tryAcquire(lockName, arg)) {
-                    return;
-                } else {
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException e) {
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public void acquireInterruptibly(String lockName, int arg) throws InterruptedException {
-        if (!tryAcquire(lockName, arg)) {
-            for (; ; ) {
-                if (tryAcquire(lockName, arg)) {
-                    return;
-                } else {
-                    Thread.sleep(50);
-                }
-            }
-        }
     }
 
     @Override
@@ -153,18 +100,9 @@ public class EtcdSource implements Source {
             throw new RuntimeException(e.getMessage());
         }
         if (result) {
-            LocalDateTime now = LocalDateTime.now();
-            Tick lockTick = new Tick(lockName, lockName, extendTime - 2, TimeUnit.SECONDS, LockExecutors.getScheduledExecutorService(),
-                    now.plusSeconds(2L), this);
-            LockExecutors.getScheduledExecutorService().schedule(lockTick, extendTime, TimeUnit.SECONDS);
-            LockExecutors.getTicks().put(lockName, lockTick);
+            addTask(lockName);
         }
         return result;
-    }
-
-    @Override
-    public boolean tryAcquireNanos(String lockName, int arg, long nanosTimeout) {
-        return tryAcquire(lockName, arg) || doAcquireNanos(lockName, arg, nanosTimeout);
     }
 
     @Override
@@ -198,24 +136,4 @@ public class EtcdSource implements Source {
         return ByteSequence.from(str, Charsets.UTF_8);
     }
 
-    private boolean doAcquireNanos(String lockName, int arg, long nanosTimeout) {
-        if (nanosTimeout <= 0L) {
-            return false;
-        }
-        final long deadline = System.nanoTime() + nanosTimeout;
-        for (; ; ) {
-            if (tryAcquire(lockName, arg)) {
-                return true;
-            } else {
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                }
-            }
-            nanosTimeout = deadline - System.nanoTime();
-            if (nanosTimeout <= 0L) {
-                return false;
-            }
-        }
-    }
 }

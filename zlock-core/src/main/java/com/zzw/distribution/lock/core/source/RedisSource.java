@@ -22,12 +22,7 @@ import redis.clients.jedis.ShardedJedis;
 import redis.clients.jedis.commands.JedisCommands;
 import redis.clients.jedis.util.Pool;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 基于 Redis 的锁
@@ -35,66 +30,22 @@ import java.util.concurrent.TimeUnit;
  * @author zhaozhiwei
  * @date 2019/5/29 15:08
  */
-public class RedisSource implements Source {
+public class RedisSource extends AbstractSource implements Source {
 
     private Pool jedisPool;
-    private String localIp;
-    private int initTime;
-    private int extendTime;
 
     public RedisSource(String host, int port) {
         this(host, port, null);
     }
 
     public RedisSource(String host, int port, String password) {
+        super();
         this.jedisPool = new JedisPool(new GenericObjectPoolConfig(), host, port, 3000, password);
-        this.initTime = 10;
-        this.extendTime = 5;
-        try {
-            this.localIp = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            this.localIp = UUID.randomUUID().toString();
-        }
     }
 
     public RedisSource(Pool pool) {
+        super();
         this.jedisPool = pool;
-        this.initTime = 10;
-        this.extendTime = 5;
-        try {
-            this.localIp = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            this.localIp = UUID.randomUUID().toString();
-        }
-    }
-
-    @Override
-    public void acquire(String lockName, int arg) {
-        if (!tryAcquire(lockName, arg)) {
-            for (; ; ) {
-                if (tryAcquire(lockName, arg)) {
-                    return;
-                } else {
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException e) {
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public void acquireInterruptibly(String lockName, int arg) throws InterruptedException {
-        if (!tryAcquire(lockName, arg)) {
-            for (; ; ) {
-                if (tryAcquire(lockName, arg)) {
-                    return;
-                } else {
-                    Thread.sleep(50);
-                }
-            }
-        }
     }
 
     @Override
@@ -153,18 +104,9 @@ public class RedisSource implements Source {
             }
         }
         if (result) {
-            LocalDateTime now = LocalDateTime.now();
-            Tick lockTick = new Tick(lockName, lockName, extendTime - 2, TimeUnit.SECONDS, LockExecutors.getScheduledExecutorService(),
-                    now.plusSeconds(2L), this);
-            LockExecutors.getScheduledExecutorService().schedule(lockTick, extendTime, TimeUnit.SECONDS);
-            LockExecutors.getTicks().put(lockName, lockTick);
+            addTask(lockName);
         }
         return result;
-    }
-
-    @Override
-    public boolean tryAcquireNanos(String lockName, int arg, long nanosTimeout) {
-        return tryAcquire(lockName, arg) || doAcquireNanos(lockName, arg, nanosTimeout);
     }
 
     @Override
@@ -200,27 +142,6 @@ public class RedisSource implements Source {
         long result = jedis.setnx(lockName, localIp);
         jedis.expire(lockName, initTime);
         return result != 0;
-    }
-
-    private boolean doAcquireNanos(String lockName, int arg, long nanosTimeout) {
-        if (nanosTimeout <= 0L) {
-            return false;
-        }
-        final long deadline = System.nanoTime() + nanosTimeout;
-        for (; ; ) {
-            if (tryAcquire(lockName, arg)) {
-                return true;
-            } else {
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                }
-            }
-            nanosTimeout = deadline - System.nanoTime();
-            if (nanosTimeout <= 0L) {
-                return false;
-            }
-        }
     }
 
 }

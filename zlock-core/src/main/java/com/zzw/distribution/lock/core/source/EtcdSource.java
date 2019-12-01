@@ -33,7 +33,6 @@ public class EtcdSource extends AbstractSource implements Source {
      * 池化管理器
      */
     private Client client;
-    private static final String BASE_LOCK_DIR = "/zlock/";
 
     public EtcdSource() {
         super();
@@ -48,7 +47,7 @@ public class EtcdSource extends AbstractSource implements Source {
     @Override
     public boolean release(String lockName, int arg) {
         KV kvClient = client.getKVClient();
-        String fullLockName = BASE_LOCK_DIR + lockName + "/" + localIp;
+        String fullLockName = BASE_LOCK_DIR + SEPARATOR + lockName + SEPARATOR + localIp;
         try {
             long count = kvClient.get(getByteSeq(fullLockName)).get().getCount();
             if (count > 0) {
@@ -65,15 +64,15 @@ public class EtcdSource extends AbstractSource implements Source {
         KV kvClient = client.getKVClient();
         Lease leaseClient = client.getLeaseClient();
         PutResponse res;
-        String fullLockName = BASE_LOCK_DIR + lockName + "/" + localIp;
+        String fullLockName = BASE_LOCK_DIR + SEPARATOR + lockName + SEPARATOR + localIp;
         boolean result = false;
         try {
             long initLeaseId = leaseClient.grant(initTime).get().getID();
             res = kvClient.put(getByteSeq(fullLockName), getByteSeq(localIp),
                     PutOption.newBuilder().withLeaseId(initLeaseId).build()).get();
             long revision = res.getHeader().getRevision();
-            List<KeyValue> kvs = kvClient.get(getByteSeq(BASE_LOCK_DIR + lockName),
-                    GetOption.newBuilder().withPrefix(getByteSeq(BASE_LOCK_DIR + lockName))
+            List<KeyValue> kvs = kvClient.get(getByteSeq(BASE_LOCK_DIR + SEPARATOR + lockName),
+                    GetOption.newBuilder().withPrefix(getByteSeq(BASE_LOCK_DIR + SEPARATOR + lockName))
                             .withSortField(GetOption.SortTarget.CREATE).build())
                     .get().getKvs();
             if (revision == kvs.get(0).getCreateRevision()) {
@@ -94,7 +93,7 @@ public class EtcdSource extends AbstractSource implements Source {
     public void extend(String lockName) {
         KV kvClient = client.getKVClient();
         Lease leaseClient = client.getLeaseClient();
-        String fullLockName = BASE_LOCK_DIR + lockName + "/" + localIp;
+        String fullLockName = BASE_LOCK_DIR + SEPARATOR + lockName + SEPARATOR + localIp;
         try {
             List<KeyValue> kvs = kvClient.get(getByteSeq(fullLockName)).get().getKvs();
             if (kvs != null && kvs.size() > 0) {

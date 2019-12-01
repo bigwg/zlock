@@ -3,7 +3,6 @@ package com.zzw.distribution.lock.core.source;
 import com.google.common.base.Charsets;
 import io.etcd.jetcd.*;
 import io.etcd.jetcd.kv.PutResponse;
-import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.options.PutOption;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;

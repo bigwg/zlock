@@ -33,6 +33,8 @@ public abstract class AbstractSource implements Source {
     protected int initTime;
     protected int extendTime;
     protected String localIp;
+    protected static final String BASE_LOCK_DIR = "/zlock";
+    protected static final String SEPARATOR = "/";
 
     public AbstractSource() {
         this.initTime = 10;

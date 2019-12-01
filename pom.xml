@@ -38,7 +38,7 @@
         <maven.complier.plugin.version>3.5</maven.complier.plugin.version>
         <jedis.version>3.1.0</jedis.version>
         <revision>0.1.0-SNAPSHOT</revision>
-        <junit_jupiter_version>5.4.0</junit_jupiter_version>
+        <junit.jupiter.version>5.4.0</junit.jupiter.version>
         <spring-boot.version>1.5.9.RELEASE</spring-boot.version>
         <curator.version>2.13.0</curator.version>
         <httpclient.version>4.5.6</httpclient.version>
@@ -49,13 +49,13 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit_jupiter_version}</version>
+            <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>${junit_jupiter_version}</version>
+            <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -70,6 +70,11 @@
             <dependency>
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-client</artifactId>
+                <version>${curator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-recipes</artifactId>
                 <version>${curator.version}</version>
             </dependency>
             <dependency>

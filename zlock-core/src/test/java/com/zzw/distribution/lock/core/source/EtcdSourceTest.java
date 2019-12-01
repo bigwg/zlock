@@ -3,13 +3,17 @@ package com.zzw.distribution.lock.core.source;
 import com.google.common.base.Charsets;
 import io.etcd.jetcd.*;
 import io.etcd.jetcd.kv.PutResponse;
+import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.options.PutOption;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -23,26 +27,42 @@ import java.util.concurrent.ExecutionException;
 public class EtcdSourceTest {
 
     private Source source;
-
     private String lockName = "etcdTryAcquireLock";
+    private String localIp;
 
     @BeforeAll
     public void beforeAll() {
         source = new EtcdSource("http://127.0.0.1:2379");
+        try {
+            this.localIp = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            this.localIp = UUID.randomUUID().toString();
+        }
     }
 
     @Test
-    public void tryAcquireTest() throws InterruptedException {
+    public void tryAcquireTest() throws InterruptedException, ExecutionException {
         boolean result = source.tryAcquire(lockName, 1);
+        Client client = Client.builder().endpoints("http://127.0.0.1:2379").build();
+        KV kvClient = client.getKVClient();
+        List<KeyValue> kvs = kvClient.get(getByteSeq("/zlock/" + lockName + "/" + localIp)).get().getKvs();
+        for (KeyValue kv : kvs) {
+            System.out.println(kv.getKey().toString(Charsets.UTF_8) + " create revision = " + kv.getCreateRevision());
+            System.out.println(kv.getKey().toString(Charsets.UTF_8) + " modify revision = " + kv.getModRevision());
+        }
         Assertions.assertTrue(result);
-        Thread.sleep(20000);
-        tryReleaseTest();
+        Assertions.assertEquals(1, kvs.size());
     }
 
     @Test
-    public void tryReleaseTest() {
+    public void releaseTest() {
         boolean release = source.release(lockName, 1);
         Assertions.assertTrue(release);
+    }
+
+    @Test
+    public void extendTest() {
+
     }
 
     @Test

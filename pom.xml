@@ -37,7 +37,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.complier.plugin.version>3.5</maven.complier.plugin.version>
         <jedis.version>3.1.0</jedis.version>
-        <revision>0.1.0-SNAPSHOT</revision>
+        <revision>0.2.0-SNAPSHOT</revision>
         <junit.jupiter.version>5.4.0</junit.jupiter.version>
         <spring-boot.version>1.5.9.RELEASE</spring-boot.version>
         <curator.version>2.13.0</curator.version>

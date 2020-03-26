@@ -11,21 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.zzw.zlock.spring.boot.constant;
+package com.zzw.zlock.spring.boot.autoconfigure;
 
 /**
- * zlock constant
+ * zookeeper config
  *
  * @author zhaozhiwei
- * @date 2019/9/25 1:20 上午
+ * @date 2020/3/24 17:54 下午
  */
-public class ZlockConstant {
+public class ZookeeperConfig {
 
-    public static final String ZLOCK_PREFIX = "zlock";
+    private String url;
 
-    public static final String ZLOCK_REDIS_PREFIX = "zlock.redis";
+    public String getUrl() {
+        return url;
+    }
 
-    public static final String ZLOCK_ZOOKEEPER_PREFIX = "zlock.zookeeper";
-
-    public static final String ZLOCK_ETCD_PREFIX = "zlock.etcd";
+    public void setUrl(String url) {
+        this.url = url;
+    }
 }

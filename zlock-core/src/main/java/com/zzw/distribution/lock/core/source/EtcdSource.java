@@ -39,9 +39,10 @@ public class EtcdSource extends AbstractSource implements Source {
         this.client = Client.builder().endpoints("http://127.0.0.1:2379").build();
     }
 
-    public EtcdSource(String... urls) {
+    public EtcdSource(String url) {
         super();
-        this.client = Client.builder().endpoints(urls).build();
+        String[] split = url.split(",");
+        this.client = Client.builder().endpoints(split).build();
     }
 
     @Override

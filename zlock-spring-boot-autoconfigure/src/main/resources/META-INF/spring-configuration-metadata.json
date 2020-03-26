@@ -34,6 +34,20 @@
       "description": "Zlock redis password.",
       "sourceType": "com.zzw.zlock.spring.boot.autoconfigure.ZlockConfigurationProperties",
       "defaultValue": ""
+    },
+    {
+      "name": "zlock.zookeeper.url",
+      "type": "java.lang.String",
+      "description": "Zlock zookeeper url.",
+      "sourceType": "com.zzw.zlock.spring.boot.autoconfigure.ZlockConfigurationProperties",
+      "defaultValue": ""
+    },
+    {
+      "name": "zlock.etcd.url",
+      "type": "java.lang.String",
+      "description": "Zlock etcd url.",
+      "sourceType": "com.zzw.zlock.spring.boot.autoconfigure.ZlockConfigurationProperties",
+      "defaultValue": ""
     }
   ],
   "hints": [

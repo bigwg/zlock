@@ -63,7 +63,7 @@ public class ZlockAutoConfiguration {
     @ConditionalOnMissingBean(Source.class)
     @ConditionalOnClass({ZooKeeper.class, CuratorZookeeperClient.class})
     public Source zookeeperSource(ZlockConfigurationProperties properties) {
-        return new ZookeeperSource();
+        return new ZookeeperSource(properties.getZookeeper().getUrl());
     }
 
     @Bean
@@ -72,7 +72,7 @@ public class ZlockAutoConfiguration {
     @ConditionalOnMissingBean(Source.class)
     @ConditionalOnClass({HttpClient.class, HttpClientConnection.class})
     public Source etcdSource(ZlockConfigurationProperties properties) {
-        return new EtcdSource();
+        return new EtcdSource(properties.getEtcd().getUrl());
     }
 
     @Bean

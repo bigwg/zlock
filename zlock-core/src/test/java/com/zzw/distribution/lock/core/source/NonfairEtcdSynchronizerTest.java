@@ -14,6 +14,8 @@
 package com.zzw.distribution.lock.core.source;
 
 import com.google.common.base.Charsets;
+import com.zzw.distribution.lock.core.synchronizer.EtcdNonfairSynchronizer;
+import com.zzw.distribution.lock.core.synchronizer.ZlockSynchronizer;
 import io.etcd.jetcd.*;
 import io.etcd.jetcd.kv.PutResponse;
 import io.etcd.jetcd.options.PutOption;
@@ -29,35 +31,32 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 /**
- * {@link EtcdSource} 锁测试类
+ * {@link EtcdNonfairSynchronizer} 锁测试类
  *
  * @author zhaozhiwei
  * @date 2019/11/30 1:01 下午
- * @see EtcdSource
+ * @see EtcdNonfairSynchronizer
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class EtcdSourceTest {
+public class NonfairEtcdSynchronizerTest {
 
-    private Source source;
+    private ZlockSynchronizer sync;
     private String lockName = "etcdTryAcquireLock";
-    private String localIp;
+    private String uuid;
 
     @BeforeAll
     public void beforeAll() {
-        source = new EtcdSource("http://127.0.0.1:2379");
-        try {
-            this.localIp = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            this.localIp = UUID.randomUUID().toString();
-        }
+        EtcdSource etcdSource = new EtcdSource("http://127.0.0.1:2379");
+        sync = new EtcdNonfairSynchronizer(etcdSource.getClient(), lockName);
+        uuid = sync.getUuid();
     }
 
     @Test
     public void tryAcquireTest() throws InterruptedException, ExecutionException {
-        boolean result = source.tryAcquire(lockName, 1);
+        boolean result = sync.tryAcquire(1);
         Client client = Client.builder().endpoints("http://127.0.0.1:2379").build();
         KV kvClient = client.getKVClient();
-        List<KeyValue> kvs = kvClient.get(getByteSeq("/zlock/" + lockName + "/" + localIp)).get().getKvs();
+        List<KeyValue> kvs = kvClient.get(getByteSeq("/zlock/" + lockName + "/" + uuid)).get().getKvs();
         for (KeyValue kv : kvs) {
             System.out.println(kv.getKey().toString(Charsets.UTF_8) + " create revision = " + kv.getCreateRevision());
             System.out.println(kv.getKey().toString(Charsets.UTF_8) + " modify revision = " + kv.getModRevision());
@@ -68,7 +67,7 @@ public class EtcdSourceTest {
 
     @Test
     public void releaseTest() {
-        boolean release = source.release(lockName, 1);
+        boolean release = sync.release(1);
         Assertions.assertTrue(release);
     }
 

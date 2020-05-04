@@ -11,34 +11,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.zzw.distribution.lock.core.source;
+package com.zzw.distribution.lock.core.holder;
 
-import io.etcd.jetcd.Client;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * etcd source
+ * 可重入锁指示器
  *
  * @author zhaozhiwei
  * @since 2020/5/3
  */
-public class EtcdSource {
+public class ReentrantLockHolder {
 
-    /**
-     * 池化管理器
-     */
-    private final Client client;
+    private final AtomicInteger numLocks = new AtomicInteger(1);
 
-    public EtcdSource() {
-        super();
-        this.client = Client.builder().endpoints("http://127.0.0.1:2379").build();
+    public void incrLock() {
+        numLocks.incrementAndGet();
     }
 
-    public EtcdSource(String... urls) {
-        super();
-        this.client = Client.builder().endpoints(urls).build();
+    public int decrLock() {
+        return numLocks.decrementAndGet();
     }
 
-    public Client getClient() {
-        return client;
+    public static boolean reentrant(ThreadLocal<ReentrantLockHolder> locks) {
+        ReentrantLockHolder local = locks.get();
+        if (local != null) {
+            local.incrLock();
+            return true;
+        }
+        return false;
     }
 }

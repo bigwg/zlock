@@ -33,6 +33,12 @@ public class ZlockConfigurationProperties {
     @NestedConfigurationProperty
     private RedisConfig redis = new RedisConfig();
 
+    @NestedConfigurationProperty
+    private ZookeeperConfig zookeeper = new ZookeeperConfig();
+
+    @NestedConfigurationProperty
+    private EtcdConfig etcd = new EtcdConfig();
+
     public RedisConfig getRedis() {
         return redis;
     }
@@ -47,5 +53,21 @@ public class ZlockConfigurationProperties {
 
     public void setEnable(Boolean enable) {
         this.enable = enable;
+    }
+
+    public ZookeeperConfig getZookeeper() {
+        return zookeeper;
+    }
+
+    public void setZookeeper(ZookeeperConfig zookeeper) {
+        this.zookeeper = zookeeper;
+    }
+
+    public EtcdConfig getEtcd() {
+        return etcd;
+    }
+
+    public void setEtcd(EtcdConfig etcd) {
+        this.etcd = etcd;
     }
 }

@@ -11,34 +11,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.zzw.distribution.lock.core.source;
-
-import io.etcd.jetcd.Client;
+package com.zzw.zlock.spring.boot.autoconfigure;
 
 /**
- * etcd source
+ * etcd config
  *
  * @author zhaozhiwei
- * @since 2020/5/3
+ * @since 2020/5/4
  */
-public class EtcdSource {
+public class EtcdConfig {
 
-    /**
-     * 池化管理器
-     */
-    private final Client client;
+    private String url;
 
-    public EtcdSource() {
-        super();
-        this.client = Client.builder().endpoints("http://127.0.0.1:2379").build();
+    public String getUrl() {
+        return url;
     }
 
-    public EtcdSource(String... urls) {
-        super();
-        this.client = Client.builder().endpoints(urls).build();
+    public void setUrl(String url) {
+        this.url = url;
     }
 
-    public Client getClient() {
-        return client;
-    }
 }

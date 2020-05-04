@@ -11,34 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.zzw.distribution.lock.core.source;
+package com.zzw.distribution.lock.core;
 
-import io.etcd.jetcd.Client;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 
 /**
- * etcd source
+ * interface for lock manager
  *
  * @author zhaozhiwei
- * @since 2020/5/3
+ * @since 2020/4/28
  */
-public class EtcdSource {
+public interface DistributedLockManager {
 
-    /**
-     * 池化管理器
-     */
-    private final Client client;
+    Lock getReentrantLock(String lockName);
 
-    public EtcdSource() {
-        super();
-        this.client = Client.builder().endpoints("http://127.0.0.1:2379").build();
-    }
-
-    public EtcdSource(String... urls) {
-        super();
-        this.client = Client.builder().endpoints(urls).build();
-    }
-
-    public Client getClient() {
-        return client;
-    }
+    ReadWriteLock getReentrantReadWriteLock(String lockName);
 }

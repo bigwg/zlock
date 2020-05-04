@@ -13,26 +13,20 @@
  */
 package com.zzw.distribution.lock.core.source;
 
-import com.zzw.distribution.lock.core.LockExecutors;
-import com.zzw.distribution.lock.core.tick.Tick;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.ShardedJedis;
-import redis.clients.jedis.commands.JedisCommands;
 import redis.clients.jedis.util.Pool;
 
-import java.util.Objects;
-
 /**
- * 基于 Redis 的锁
+ * redis source
  *
  * @author zhaozhiwei
- * @date 2019/5/29 15:08
+ * @since 2020/5/3
  */
-public class RedisSource extends AbstractSource implements Source {
+public class RedisSource {
 
-    private Pool jedisPool;
+    private final Pool<Jedis> jedisPool;
 
     public RedisSource(String host, int port) {
         this(host, port, null);
@@ -43,86 +37,12 @@ public class RedisSource extends AbstractSource implements Source {
         this.jedisPool = new JedisPool(new GenericObjectPoolConfig(), host, port, 3000, password);
     }
 
-    public RedisSource(Pool pool) {
+    public RedisSource(Pool<Jedis> pool) {
         super();
         this.jedisPool = pool;
     }
 
-    @Override
-    public boolean release(String lockName, int arg) {
-        JedisCommands jedis = getResource();
-        try {
-            String value = jedis.get(lockName);
-            if (value != null) {
-                if (Objects.equals(value, localIp)) {
-                    jedis.del(lockName);
-                    Tick tick = LockExecutors.getTicks().get(lockName);
-                    if (tick != null) {
-                        tick.interrupt();
-                    }
-                    LockExecutors.getTicks().remove(lockName);
-                }
-            }
-        } finally {
-            // return resource
-            if (jedis instanceof ShardedJedis) {
-                ((ShardedJedis) jedis).close();
-            } else if (jedis instanceof Jedis) {
-                ((Jedis) jedis).close();
-            }
-        }
-        return true;
+    public Pool<Jedis> getJedisPool() {
+        return jedisPool;
     }
-
-    @Override
-    public boolean tryAcquire(String lockName, int arg) {
-        JedisCommands jedis = getResource();
-        boolean result;
-        try {
-            result = setnx(jedis, lockName);
-        } finally {
-            // return resource
-            if (jedis instanceof ShardedJedis) {
-                ((ShardedJedis) jedis).close();
-            } else if (jedis instanceof Jedis) {
-                ((Jedis) jedis).close();
-            }
-        }
-        if (result) {
-            addTask(lockName);
-        }
-        return result;
-    }
-
-    @Override
-    public void extend(String lockName) {
-        JedisCommands jedis = getResource();
-        try {
-            String value = jedis.get(lockName);
-            if (value != null) {
-                if (Objects.equals(value, localIp)) {
-                    jedis.expire(lockName, extendTime);
-                }
-            }
-        } finally {
-            // return resource
-            if (jedis instanceof ShardedJedis) {
-                ((ShardedJedis) jedis).close();
-            } else if (jedis instanceof Jedis) {
-                ((Jedis) jedis).close();
-            }
-        }
-    }
-
-    private JedisCommands getResource() {
-        return (JedisCommands) jedisPool.getResource();
-    }
-
-    private boolean setnx(JedisCommands jedis, String lockName) {
-        long result = jedis.setnx(lockName, localIp);
-        jedis.expire(lockName, initTime);
-        return result != 0;
-    }
-
 }
-

@@ -13,11 +13,12 @@
  */
 package com.zzw.zlock.spring.boot.autoconfigure;
 
-import com.zzw.distribution.lock.core.DefaultDistributionLock;
-import com.zzw.distribution.lock.core.DistributedLock;
+import com.zzw.distribution.lock.core.DistributedLockManager;
+import com.zzw.distribution.lock.core.EtcdDistributedLockManager;
+import com.zzw.distribution.lock.core.RedisDistributedLockManager;
+import com.zzw.distribution.lock.core.ZookeeperDistributedLockManager;
 import com.zzw.distribution.lock.core.source.EtcdSource;
 import com.zzw.distribution.lock.core.source.RedisSource;
-import com.zzw.distribution.lock.core.source.Source;
 import com.zzw.distribution.lock.core.source.ZookeeperSource;
 import org.apache.curator.CuratorZookeeperClient;
 import org.apache.http.HttpClientConnection;
@@ -31,8 +32,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.commands.JedisCommands;
 
 import static com.zzw.zlock.spring.boot.constant.ZlockConstant.ZLOCK_PREFIX;
 
@@ -51,34 +52,33 @@ public class ZlockAutoConfiguration {
     @Primary
     @ConditionalOnProperty(prefix = ZLOCK_PREFIX, name = "redis")
     @ConditionalOnBean(ZlockConfigurationProperties.class)
-    @ConditionalOnClass({JedisCommands.class, JedisPool.class})
-    public Source redisSource(ZlockConfigurationProperties properties) {
+    @ConditionalOnClass({Jedis.class, JedisPool.class})
+    public DistributedLockManager redisLockManager(ZlockConfigurationProperties properties) {
         RedisConfig redisConfig = properties.getRedis();
-        return new RedisSource(redisConfig.getHost(), redisConfig.getPort(), redisConfig.getPassword());
+        RedisSource redisSource = new RedisSource(redisConfig.getHost(), redisConfig.getPort(), redisConfig.getPassword());
+        return new RedisDistributedLockManager(redisSource);
     }
 
     @Bean
     @ConditionalOnProperty(prefix = ZLOCK_PREFIX, name = "zookeeper")
     @ConditionalOnBean(ZlockConfigurationProperties.class)
-    @ConditionalOnMissingBean(Source.class)
+    @ConditionalOnMissingBean(DistributedLockManager.class)
     @ConditionalOnClass({ZooKeeper.class, CuratorZookeeperClient.class})
-    public Source zookeeperSource(ZlockConfigurationProperties properties) {
-        return new ZookeeperSource();
+    public DistributedLockManager zookeeperLockManager(ZlockConfigurationProperties properties) {
+        ZookeeperConfig zookeeper = properties.getZookeeper();
+        ZookeeperSource zookeeperSource = new ZookeeperSource(zookeeper.getUrl());
+        return new ZookeeperDistributedLockManager(zookeeperSource);
     }
 
     @Bean
     @ConditionalOnProperty(prefix = ZLOCK_PREFIX, name = "etcd")
     @ConditionalOnBean(ZlockConfigurationProperties.class)
-    @ConditionalOnMissingBean(Source.class)
+    @ConditionalOnMissingBean(DistributedLockManager.class)
     @ConditionalOnClass({HttpClient.class, HttpClientConnection.class})
-    public Source etcdSource(ZlockConfigurationProperties properties) {
-        return new EtcdSource();
-    }
-
-    @Bean
-    @ConditionalOnBean(Source.class)
-    public DistributedLock distributedLock(Source source) {
-        return new DefaultDistributionLock(source);
+    public DistributedLockManager etcdLockManager(ZlockConfigurationProperties properties) {
+        EtcdConfig etcd = properties.getEtcd();
+        EtcdSource etcdSource = new EtcdSource(etcd.getUrl());
+        return new EtcdDistributedLockManager(etcdSource);
     }
 
 }

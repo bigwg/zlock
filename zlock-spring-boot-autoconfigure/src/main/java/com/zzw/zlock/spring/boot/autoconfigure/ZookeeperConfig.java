@@ -11,27 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.zzw.distribution.lock.core;
-
-import java.util.concurrent.TimeUnit;
+package com.zzw.zlock.spring.boot.autoconfigure;
 
 /**
- * 分布式锁
+ * zookeeper config
  *
  * @author zhaozhiwei
- * @date 2019/5/29 12:12
+ * @since 2020/5/4
  */
-public interface DistributedLock {
+public class ZookeeperConfig {
 
-    void lock(String lockName);
+    private String url;
 
-    void lockInterruptibly(String lockName) throws InterruptedException;
+    public String getUrl() {
+        return url;
+    }
 
-    boolean tryLock(String lockName);
-
-    boolean tryLock(String lockName, long time, TimeUnit unit) throws InterruptedException;
-
-    void unlock(String lockName);
-
-    void extend(String lockName);
+    public void setUrl(String url) {
+        this.url = url;
+    }
 }

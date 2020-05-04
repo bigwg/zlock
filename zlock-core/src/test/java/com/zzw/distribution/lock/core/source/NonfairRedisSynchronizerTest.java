@@ -13,41 +13,49 @@
  */
 package com.zzw.distribution.lock.core.source;
 
+import com.zzw.distribution.lock.core.synchronizer.RedisNonfairSynchronizer;
+import com.zzw.distribution.lock.core.synchronizer.ZlockSynchronizer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 /**
- * {@link RedisSource} 测试类
+ * {@link RedisNonfairSynchronizer} 测试类
  *
  * @author zhaozhiwei
  * @date 2019/9/19 3:03 下午
- * @see RedisSource
+ * @see RedisNonfairSynchronizer
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class RedisSourceTest {
+public class NonfairRedisSynchronizerTest {
 
-    private Source source;
+    private ZlockSynchronizer sync;
 
     private String lockName = "zhaozhiweiTryAcquireLock";
 
     @BeforeAll
     public void beforeAll() {
-        source = new RedisSource("10.12.0.8", 6379, "MBkMl4cssBcbet1W");
+        RedisSource redisSource = new RedisSource("127.0.0.1", 6379);
+        sync = new RedisNonfairSynchronizer(redisSource.getJedisPool(), lockName);
     }
 
     @Test
     public void tryAcquireTest() throws InterruptedException {
-        boolean result = source.tryAcquire(lockName, 1);
+        boolean result = sync.tryAcquire(1);
         Assertions.assertTrue(result);
-        Thread.sleep(20000);
+        Thread.sleep(5000);
         tryReleaseTest();
     }
 
     @Test
     public void tryReleaseTest() {
-        boolean release = source.release(lockName, 1);
+        boolean release = sync.release(1);
         Assertions.assertTrue(release);
+    }
+
+    @Test
+    public void extendTest(){
+        sync.extend();
     }
 }
